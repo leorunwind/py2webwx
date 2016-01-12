@@ -306,7 +306,7 @@ def sendInterface(MemberList, MemberCount):
             else:
                 sendMsg(My['UserName'], to_user_found, msg)
             #显示群发进度
-            percent = 1 * i / MemberCount * 100
+            percent = i / MemberCount * 100
             print(u'群发进度:%6.5s%s'%(str(percent),'%'), end='\r')
             if i == MemberCount - 1:
                  print(u'群发进度:%6.5s%s'%(str(100),'%'))
