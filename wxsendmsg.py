@@ -263,17 +263,17 @@ def sendMsg(MyUserName, ToUserName, msg):
         "Msg": {"Type": 1, "Content": msg, "FromUserName": MyUserName, "ToUserName": ToUserName},
     }
 
-    json_obj = json.dumps(params,ensure_ascii=False).encode('utf-8')
+    json_obj = json.dumps(params,ensure_ascii=False).encode('utf-8')#ensure_ascii=False防止中文乱码
     request = urllib.request.Request(url=url, data=json_obj)
     request.add_header('ContentType', 'application/json; charset=UTF-8')
     urllib.request.urlopen(request)
     
-    #打印请求信息，调试用
+    #打印响应信息，调试用
     #response = urllib.request.urlopen(request)
     #data = response.read()
     #print(data)
 
-def sendInterface(MemberList,MemberCount):
+def sendInterface(MemberList, MemberCount):
     print(u'选择你要发送消息的对象，你可以按以下方式输入：')
     print(u'1-回车-昵称；2-回车-备注名；3-回车-all(发送给所有人)')
     choice = int(input())
@@ -348,13 +348,6 @@ def main():
         if(flag == 'q'):
             break
 
-    '''
-    while (cnt < 10):
-        sendMsg(My['UserName'], to_user_found)
-        time.sleep(2)
-        syncCheck()
-        cnt += 1'''
-
         # for i in xrange(0, MemberCount):
         # print(json.dumps(MemberList[i],encoding = 'utf-8',ensure_ascii = False))
 
@@ -363,3 +356,4 @@ if __name__ == '__main__':
     print(u'回车键继续...')
     input()
     main()
+    print(u'已退出，欢迎下次使用...')
