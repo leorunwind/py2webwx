@@ -288,7 +288,6 @@ def sendInterface(MemberList, MemberCount):
                 to_user_found = MemberList[i]['UserName']
                 sendMsg(My['UserName'], to_user_found, msg)
                 return True
-                break
     elif(choice == 2):
         print(u'查找联系人中...')
         for i in range(MemberCount):
@@ -296,18 +295,24 @@ def sendInterface(MemberList, MemberCount):
                 to_user_found = MemberList[i]['UserName']
                 sendMsg(My['UserName'], to_user_found, msg)
                 return True
-                break
-    else:
+    elif(choice == 3):
         print(u'按回车将发送给所有人(慎用！)...等等！不想让人知道你是群发的？输入1选择在消息前加发送对象的备注名')
         flag = input()
         for i in range(MemberCount):
             to_user_found = MemberList[i]['UserName']
-            mark_name = MemberList[i]['RemarkName']
             if(flag == '1'):
+                mark_name = MemberList[i]['RemarkName']
                 sendMsg(My['UserName'], to_user_found, mark_name+'\n'+msg)
             else:
                 sendMsg(My['UserName'], to_user_found, msg)
+            #显示群发进度
+            percent = 1 * i / MemberCount * 100
+            print(u'群发进度:%6.5s%s'%(str(percent),'%'), end='\r')
+            if i == MemberCount - 1:
+                 print(u'群发进度:%6.5s%s'%(str(100),'%'))
         return True
+    else:
+    	return False
 
 def main():
     opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
