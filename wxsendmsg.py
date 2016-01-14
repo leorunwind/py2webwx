@@ -15,8 +15,6 @@ import json
 
 DEBUG = False
 
-MAX_GROUP_NUM = 35  # 每组人数
-
 QRImagePath = os.getcwd() + '/qrcode.jpg'
 
 tip = 0
@@ -192,8 +190,6 @@ def webwxinit():
         f.close()
 
     # print data
-    with open('wxinit_res.txt','wb') as f:
-        f.write(data)
 
     global ContactList, My
     dic = json.loads(data.decode())
@@ -220,9 +216,6 @@ def webwxgetcontact():
     request.add_header('ContentType', 'application/json; charset=UTF-8')
     response = urllib.request.urlopen(request)
     data = response.read()
-
-    with open('getcontact.txt','wb') as f:
-        f.write(data)
 
     if DEBUG:
         f = open(os.getcwd() + '/webwxgetcontact.json', 'wb')
@@ -288,6 +281,7 @@ def sendInterface(MemberList, MemberCount):
                 to_user_found = MemberList[i]['UserName']
                 sendMsg(My['UserName'], to_user_found, msg)
                 return True
+                
     elif(choice == 2):
         print(u'查找联系人中...')
         for i in range(MemberCount):
@@ -295,24 +289,25 @@ def sendInterface(MemberList, MemberCount):
                 to_user_found = MemberList[i]['UserName']
                 sendMsg(My['UserName'], to_user_found, msg)
                 return True
+                
     elif(choice == 3):
-        print(u'按回车将发送给所有人(慎用！)...等等！不想让人知道你是群发的？输入1选择在消息前加发送对象的备注名')
+        print(u'按回车将发送给所有人(慎用！)...等等！不想让人知道你是群发的？输入1自动在消息前加对方的备注名')
         flag = input()
         for i in range(MemberCount):
+            percent = i / MemberCount * 100
+            print(u'群发进度:%6.5s%s'%(str(percent),'%'), end='\r')#根据第几次循环显示群发百分比
             to_user_found = MemberList[i]['UserName']
             if(flag == '1'):
                 mark_name = MemberList[i]['RemarkName']
-                sendMsg(My['UserName'], to_user_found, mark_name+'\n'+msg)
+                sendMsg(My['UserName'], to_user_found, mark_name+' '+msg)
             else:
                 sendMsg(My['UserName'], to_user_found, msg)
-            #显示群发进度
-            percent = i / MemberCount * 100
-            print(u'群发进度:%6.5s%s'%(str(percent),'%'), end='\r')
-            if i == MemberCount - 1:
-                 print(u'群发进度:%6.5s%s'%(str(100),'%'))
+        print(u'群发进度:%6.5s%s'%(str(100),'%'))
         return True
+        
     else:
     	return False
+
 
 def main():
     opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
