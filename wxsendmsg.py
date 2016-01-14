@@ -12,6 +12,7 @@ import sys
 import math
 import subprocess
 import json
+import threading
 
 DEBUG = False
 
@@ -249,7 +250,7 @@ def webwxgetcontact():
     return MemberList
 
 # 根据指定的Username发消息
-def sendMsg(MyUserName, ToUserName, msg):
+def sendMsg(MyUserName, ToUserName, msg, seconds):
     url = base_uri + '/webwxsendmsg?pass_ticket=%s' % (pass_ticket)
     params = {
         "BaseRequest": BaseRequest,
@@ -257,6 +258,7 @@ def sendMsg(MyUserName, ToUserName, msg):
     }
 
     json_obj = json.dumps(params,ensure_ascii=False).encode('utf-8')#ensure_ascii=False防止中文乱码
+    time.sleep(seconds)
     request = urllib.request.Request(url=url, data=json_obj)
     request.add_header('ContentType', 'application/json; charset=UTF-8')
     urllib.request.urlopen(request)
@@ -267,29 +269,46 @@ def sendMsg(MyUserName, ToUserName, msg):
     #print(data)
 
 def sendInterface(MemberList, MemberCount):
+    print('-'*20+u'发送界面(虽然我丑，但我就是界面)'+'-'*20)
     print(u'选择你要发送消息的对象，你可以按以下方式输入：')
-    print(u'1-回车-昵称；2-回车-备注名；3-回车-all(发送给所有人)')
-    choice = int(input())
-    name = input()
-    print(u'请输入要发送的消息')
+    print(u'1-昵称；2-备注名；3-all(发送给所有人)')
+    input_str = input()
+    try:
+        input_ = input_str.split('-')
+        choice = int(input_[0])
+        name = input_[1]
+    except:
+        print(u'请按格式输入，如2-逗比')
+        print()
+        return []
+    print(u'我要对%s说：'%name),
     msg = input()
-
+    print(u'希望在多少小时后发送？如果你输入0，则退出发送界面后立即发送',)
+    delay = float(input())
+    sleep = delay*3600
+    thread_res = []
     if(choice == 1):
         print(u'查找联系人中...')
         for i in range(MemberCount):
             if MemberList[i]['NickName'] == name:
                 to_user_found = MemberList[i]['UserName']
-                sendMsg(My['UserName'], to_user_found, msg)
-                return True
-                
+                t = threading.Thread(target = sendMsg, args = (My['UserName'], to_user_found, msg, sleep))
+                thread_res.append(t)
+                return thread_res
+        print(u'找不到发送对象')
+        print()
+
     elif(choice == 2):
         print(u'查找联系人中...')
         for i in range(MemberCount):
             if MemberList[i]['RemarkName'] == name:
                 to_user_found = MemberList[i]['UserName']
-                sendMsg(My['UserName'], to_user_found, msg)
-                return True
-                
+                t = threading.Thread(target = sendMsg, args = (My['UserName'], to_user_found, msg, sleep))
+                thread_res.append(t)
+                return thread_res
+        print(u'找不到发送对象')
+        print()
+
     elif(choice == 3):
         print(u'按回车将发送给所有人(慎用！)...等等！不想让人知道你是群发的？输入1自动在消息前加对方的备注名')
         flag = input()
@@ -299,17 +318,19 @@ def sendInterface(MemberList, MemberCount):
             to_user_found = MemberList[i]['UserName']
             if(flag == '1'):
                 mark_name = MemberList[i]['RemarkName']
-                sendMsg(My['UserName'], to_user_found, mark_name+' '+msg)
+                t = threading.Thread(target = sendMsg, args = (My['UserName'], to_user_found, mark_name+' '+msg, sleep))
             else:
-                sendMsg(My['UserName'], to_user_found, msg)
+                t = threading.Thread(target = sendMsg, args = (My['UserName'], to_user_found, msg, sleep))
+            thread_res.append(t)
         print(u'群发进度:%6.5s%s'%(str(100),'%'))
-        return True
-        
-    else:
-    	return False
+        print()
 
+    return thread_res
 
 def main():
+    print(u'欢迎使用情怀版微信，正在生成登录二维码...')
+    #print(u'回车键继续...')
+    #input()
     opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
     urllib.request.install_opener(opener)
 
@@ -337,23 +358,30 @@ def main():
     MemberCount = len(MemberList)
     print(u'通讯录共%s位好友' % MemberCount)
 
+    threads = []
     while(True):
         #进入发送界面
-        if(sendInterface(MemberList, MemberCount)):
-            print(u'消息发送成功')
-        else:
-            print(u'没找到发送对象')
-        print(u'回车继续发送，输入q退出')
+
+        threads_res = sendInterface(MemberList, MemberCount)
+        threads_num = len(threads_res)
+        if(threads_num == 0):
+            continue
+        for i in range(threads_num):
+            threads.append(threads_res[i])
+        print(u'当前有%d个发送线程'%len(threads))
+        print(u'回车继续发送，输入q退出发送界面，并开始执行所有发送线程')
         flag = input()
         if(flag == 'q'):
             break
 
+    for t in threads:
+        #t.setDaemon(True)
+        t.start()
+
+    t.join()
+    print(u'程序将在发送成功后自动退出(换句话说，该干嘛干嘛去吧)...')
         # for i in xrange(0, MemberCount):
         # print(json.dumps(MemberList[i],encoding = 'utf-8',ensure_ascii = False))
 
 if __name__ == '__main__':
-    print(u'欢迎使用命令行版微信...')
-    print(u'回车键继续...')
-    input()
     main()
-    print(u'已退出，欢迎下次使用...')
