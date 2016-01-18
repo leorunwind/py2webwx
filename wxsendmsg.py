@@ -313,8 +313,10 @@ def sendInterface(MemberList, MemberCount):
         print(u'按回车将发送给所有人(慎用！)...等等！不想让人知道你是群发的？输入1自动在消息前加对方的备注名')
         flag = input()
         for i in range(MemberCount):
-            percent = i / MemberCount * 100
-            print(u'群发进度:%6.5s%s'%(str(percent),'%'), end='\r')#根据第几次循环显示群发百分比
+            #根据第几次循环显示群发百分比
+            #percent = i / MemberCount * 100
+            #print(u'群发进度:%6.5s%s'%(str(percent),'%'), end = '\r')
+
             to_user_found = MemberList[i]['UserName']
             if(flag == '1'):
                 mark_name = MemberList[i]['RemarkName']
@@ -322,15 +324,14 @@ def sendInterface(MemberList, MemberCount):
             else:
                 t = threading.Thread(target = sendMsg, args = (My['UserName'], to_user_found, msg, sleep))
             thread_res.append(t)
-        print(u'群发进度:%6.5s%s'%(str(100),'%'))
+        #print(u'群发进度:%6.5s%s'%(str(100),'%'))
         print()
 
     return thread_res
 
 def main():
     print(u'欢迎使用情怀版微信，正在生成登录二维码...')
-    #print(u'回车键继续...')
-    #input()
+
     opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
     urllib.request.install_opener(opener)
 
@@ -358,6 +359,11 @@ def main():
     MemberCount = len(MemberList)
     print(u'通讯录共%s位好友' % MemberCount)
 
+    if DEBUG:
+        #打印联系人信息，调试用
+        for i in range(0, MemberCount):
+            print(json.dumps(MemberList[i],encoding = 'utf-8',ensure_ascii = False))
+
     threads = []
     while(True):
         #进入发送界面
@@ -380,8 +386,6 @@ def main():
 
     t.join()
     print(u'程序将在发送成功后自动退出(换句话说，该干嘛干嘛去吧)...')
-        # for i in xrange(0, MemberCount):
-        # print(json.dumps(MemberList[i],encoding = 'utf-8',ensure_ascii = False))
 
 if __name__ == '__main__':
     main()
