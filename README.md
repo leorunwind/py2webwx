@@ -13,7 +13,7 @@
 
 # 程序怎么运行
 如果你电脑上有Python3.0或以上以上的库，那么下载wxsendmsg.py文件后，在wxsendmsg.py的当前目录下运行命令行窗口（cmd）并执行命令Python wxsendmsg.py即可；
-如果你的windows没有Python3.0或以上的环境，请通过网盘链接下载exe版本http://pan.baidu.com/s/1jHq0E82.
+如果你的windows没有Python3.0或以上的环境，请通过网盘链接下载exe版本http://pan.baidu.com/s/1jHq0E82.由于压缩包里面含有exe程序，下载时浏览器会报有安全隐患，无视就好。
 
 # 隐私&免责声明
 本程序所需要的扫描二维码登录微信操作，是登录web微信的必须步骤。相信我，这个程序就是在你电脑上登录微信而已，对微信的控制权完全在你手上。如果这样我就能盗你微信，那腾讯可以大概可以倒闭了。
